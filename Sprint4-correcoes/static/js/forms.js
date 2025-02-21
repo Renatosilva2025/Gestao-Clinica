@@ -114,22 +114,22 @@ async function editClient(id) {
         if (!response.ok) throw new Error('Erro ao buscar dados do cliente');
 
         const client = await response.json();
-        const modal = new bootstrap.Modal(document.getElementById('editClientModal'));
 
-        // Preencher o modal de edição
+        // Preencher o formulário de edição
         document.getElementById('edit-name').value = client.name;
         document.getElementById('edit-email').value = client.email;
         document.getElementById('edit-phone').value = client.phone;
         document.getElementById('edit-cpf').value = client.cpf;
 
-        // Configurar o formulário para edição
-        const form = document.getElementById('editClientForm');
-        form.setAttribute('action', `/clients/${id}/edit`);
+        // Configurar action do formulário
+        document.getElementById('editClientForm').action = `/clients/${id}/edit`;
 
+        // Abrir modal
+        const modal = new bootstrap.Modal(document.getElementById('editClientModal'));
         modal.show();
     } catch (error) {
-        showAlert('Erro ao carregar dados do cliente', 'danger');
-        console.error(error);
+        console.error('Erro:', error);
+        alert('Erro ao carregar dados do cliente');
     }
 }
 
@@ -137,20 +137,14 @@ async function deleteClient(id) {
     if (confirm('Deseja realmente excluir este cliente?')) {
         try {
             const response = await fetch(`/clients/${id}/delete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                method: 'POST'
             });
 
             if (!response.ok) throw new Error('Erro ao excluir cliente');
-
-            showAlert('Cliente excluído com sucesso', 'success');
-            setTimeout(() => window.location.reload(), 1500);
+            window.location.reload();
         } catch (error) {
-            showAlert('Erro ao excluir cliente', 'danger');
-            console.error(error);
+            console.error('Erro:', error);
+            alert('Erro ao excluir cliente');
         }
     }
 }

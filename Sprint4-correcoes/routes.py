@@ -80,24 +80,32 @@ def clients():
 def add_client():
     try:
         data = request.form
-        # Validação básica dos dados
         if not all([data.get('name'), data.get('email'), data.get('phone'), data.get('cpf')]):
-            flash('Todos os campos são obrigatórios')
+            flash('Todos os campos são obrigatórios', 'error')
+            return redirect(url_for('clients'))
+
+        # Verifica se já existe cliente com mesmo email ou CPF
+        existing_client = Client.query.filter(
+            (Client.email == data['email']) | (Client.cpf == data['cpf'])
+        ).first()
+        
+        if existing_client:
+            flash('Já existe um cliente com este email ou CPF', 'error')
             return redirect(url_for('clients'))
 
         client = Client(
-            name=data['name'],
-            email=data['email'],
-            phone=data['phone'],
-            cpf=data['cpf']
+            name=data['name'].strip(),
+            email=data['email'].strip(),
+            phone=data['phone'].strip(),
+            cpf=data['cpf'].strip()
         )
         db.session.add(client)
         db.session.commit()
-        flash('Cliente adicionado com sucesso!')
+        flash('Cliente adicionado com sucesso!', 'success')
     except Exception as e:
         logger.error(f"Erro ao adicionar cliente: {str(e)}")
         db.session.rollback()
-        flash('Erro ao adicionar cliente')
+        flash('Erro ao adicionar cliente. Verifique se os dados estão corretos.', 'error')
     return redirect(url_for('clients'))
 
 # API routes para buscar dados
@@ -119,6 +127,7 @@ def get_professional(id):
     return jsonify({
         'name': professional.name,
         'specialty': professional.specialty,
+        'professional_id': professional.professional_id,
         'email': professional.email,
         'phone': professional.phone
     })
@@ -132,6 +141,18 @@ def get_procedure(id):
         'description': procedure.description,
         'duration': procedure.duration,
         'price': procedure.price
+    })
+
+@app.route('/api/appointments/<int:id>')
+@login_required
+def get_appointment(id):
+    appointment = Appointment.query.get_or_404(id)
+    return jsonify({
+        'date_time': appointment.date_time.isoformat(),
+        'client_id': appointment.client_id,
+        'professional_id': appointment.professional_id,
+        'procedure_id': appointment.procedure_id,
+        'status': appointment.status
     })
 
 # Rotas de edição
@@ -161,12 +182,14 @@ def edit_client(id):
 def edit_professional(id):
     professional = Professional.query.get_or_404(id)
     try:
-        if not all([request.form.get('name'), request.form.get('specialty'), 
-                   request.form.get('email'), request.form.get('phone')]):
+        if not all([request.form.get('name'), request.form.get('specialty'),
+                   request.form.get('email'), request.form.get('phone'),
+                   request.form.get('professional_id')]):
             raise ValueError("Todos os campos são obrigatórios")
 
         professional.name = request.form['name']
         professional.specialty = request.form['specialty']
+        professional.professional_id = request.form['professional_id']
         professional.email = request.form['email']
         professional.phone = request.form['phone']
         db.session.commit()
@@ -253,12 +276,13 @@ def professionals():
 def add_professional():
     try:
         data = request.form
-        if not all([data.get('name'), data.get('specialty'), data.get('email'), data.get('phone')]):
+        if not all([data.get('name'), data.get('specialty'), data.get('professional_id'), data.get('email'), data.get('phone')]):
             flash('Todos os campos são obrigatórios')
             return redirect(url_for('professionals'))
         professional = Professional(
             name=data['name'],
             specialty=data['specialty'],
+            professional_id=data['professional_id'],
             email=data['email'],
             phone=data['phone']
         )
@@ -316,12 +340,76 @@ def appointments():
                          professionals=professionals,
                          procedures=procedures)
 
+@app.route('/appointments/<int:id>/edit', methods=['POST'])
+@login_required
+def edit_appointment(id):
+    appointment = Appointment.query.get_or_404(id)
+    try:
+        if not all([request.form.get('date'), request.form.get('time'), 
+                   request.form.get('client_id'), request.form.get('professional_id'),
+                   request.form.get('procedure_id'), request.form.get('status')]):
+            raise ValueError("Todos os campos são obrigatórios")
+            
+        date_time = datetime.strptime(f"{request.form['date']} {request.form['time']}", '%Y-%m-%d %H:%M')
+        
+        # Verificar conflito de horário
+        conflict = Appointment.query.filter(
+            Appointment.professional_id == request.form['professional_id'],
+            Appointment.date_time == date_time,
+            Appointment.id != id
+        ).first()
+        
+        if conflict:
+            raise ValueError("Já existe um agendamento neste horário")
+            
+        appointment.date_time = date_time
+        appointment.client_id = request.form['client_id']
+        appointment.professional_id = request.form['professional_id']
+        appointment.procedure_id = request.form['procedure_id']
+        appointment.status = request.form['status']
+        
+        db.session.commit()
+        flash('Agendamento atualizado com sucesso!')
+    except Exception as e:
+        logger.error(f"Erro ao atualizar agendamento: {str(e)}")
+        db.session.rollback()
+        flash('Erro ao atualizar agendamento')
+    return redirect(url_for('appointments'))
+
+@app.route('/appointments/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_appointment(id):
+    appointment = Appointment.query.get_or_404(id)
+    try:
+        db.session.delete(appointment)
+        db.session.commit()
+        flash('Agendamento excluído com sucesso!')
+    except Exception as e:
+        logger.error(f"Erro ao excluir agendamento: {str(e)}")
+        db.session.rollback()
+        flash('Erro ao excluir agendamento')
+    return redirect(url_for('appointments'))
+
 @app.route('/appointments/add', methods=['POST'])
 @login_required
 def add_appointment():
     data = request.form
     try:
+        if not all([data.get('date'), data.get('time'), data.get('client_id'), 
+                   data.get('professional_id'), data.get('procedure_id')]):
+            raise ValueError("Todos os campos são obrigatórios")
+            
         date_time = datetime.strptime(f"{data['date']} {data['time']}", '%Y-%m-%d %H:%M')
+        
+        # Verificar se já existe agendamento no mesmo horário
+        existing_appointment = Appointment.query.filter_by(
+            date_time=date_time,
+            professional_id=data['professional_id']
+        ).first()
+        
+        if existing_appointment:
+            raise ValueError("Já existe um agendamento neste horário")
+            
         appointment = Appointment(
             date_time=date_time,
             client_id=data['client_id'],
@@ -331,6 +419,10 @@ def add_appointment():
         db.session.add(appointment)
         db.session.commit()
         flash('Agendamento realizado com sucesso!')
+    except ValueError as e:
+        logger.error(f"Erro de validação: {str(e)}")
+        flash(str(e))
+        db.session.rollback()
     except Exception as e:
         logger.error(f"Erro ao realizar agendamento: {str(e)}")
         db.session.rollback()

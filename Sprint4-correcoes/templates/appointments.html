@@ -109,4 +109,91 @@
         </div>
     </div>
 </div>
-{% endblock %}
+<!-- Modal de Edição -->
+<div class="modal fade" id="editAppointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Agendamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="editAppointmentForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit-client" class="form-label">Cliente</label>
+                        <select class="form-select" id="edit-client" name="client_id" required>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-professional" class="form-label">Profissional</label>
+                        <select class="form-select" id="edit-professional" name="professional_id" required>
+                            {% for professional in professionals %}
+                            <option value="{{ professional.id }}">{{ professional.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-procedure" class="form-label">Procedimento</label>
+                        <select class="form-select" id="edit-procedure" name="procedure_id" required>
+                            {% for procedure in procedures %}
+                            <option value="{{ procedure.id }}">{{ procedure.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit-client" class="form-label">Cliente</label>
+                        <select class="form-select" id="edit-client" name="client_id" required>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-professional" class="form-label">Profissional</label>
+                        <select class="form-select" id="edit-professional" name="professional_id" required>
+                            {% for professional in professionals %}
+                            <option value="{{ professional.id }}">{{ professional.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-procedure" class="form-label">Procedimento</label>
+                        <select class="form-select" id="edit-procedure" name="procedure_id" required>
+                            {% for procedure in procedures %}
+                            <option value="{{ procedure.id }}">{{ procedure.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-date" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="edit-date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-time" class="form-label">Hora</label>
+                        <input type="time" class="form-control" id="edit-time" name="time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-status" class="form-label">Status</label>
+                        <select class="form-select" id="edit-status" name="status" required>
+                            <option value="agendado">Agendado</option>
+                            <option value="confirmado">Confirmado</option>
+                            <option value="cancelado">Cancelado</option>
+                            <option value="realizado">Realizado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/appointments.js') }}"></script>
+{% endblock %} %}
