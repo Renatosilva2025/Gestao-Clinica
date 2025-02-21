@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3" style="color: var(--prime-text);">Profissionais</h1>
+    <button class="btn btn-prime" data-bs-toggle="modal" data-bs-target="#addProfessionalModal">
+        <i class="fas fa-plus me-2"></i>Novo Profissional
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Especialidade</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for professional in professionals %}
+                    <tr>
+                        <td>{{ professional.name }}</td>
+                        <td>{{ professional.specialty }}</td>
+                        <td>{{ professional.email }}</td>
+                        <td>{{ professional.phone }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-prime" onclick="editProfessional({{ professional.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProfessional({{ professional.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Profissional -->
+<div class="modal fade" id="addProfessionalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Novo Profissional</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_professional') }}" class="needs-validation" novalidate>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe o nome.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="specialty" class="form-label">Especialidade</label>
+                        <input type="text" class="form-control" id="specialty" name="specialty" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a especialidade.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe um email válido.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe um telefone válido.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-prime">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Profissional -->
+<div class="modal fade" id="editProfessionalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Profissional</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editProfessionalForm" method="POST" class="needs-validation" novalidate>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit-name" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="edit-name" name="name" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe o nome.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-specialty" class="form-label">Especialidade</label>
+                        <input type="text" class="form-control" id="edit-specialty" name="specialty" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a especialidade.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit-email" name="email" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe um email válido.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-phone" class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="edit-phone" name="phone" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe um telefone válido.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-prime">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Área para alertas -->
+<div id="alertPlaceholder"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+{% endblock %}
