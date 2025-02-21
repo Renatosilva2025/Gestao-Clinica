@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3" style="color: var(--prime-text);">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-check mb-3" style="font-size: 2rem; color: var(--prime-primary);"></i>
+                <h5 class="card-title" style="color: var(--prime-text);">Agendamentos Hoje</h5>
+                <p class="card-text display-4" style="color: var(--prime-primary);">{{ today_appointments }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users mb-3" style="font-size: 2rem; color: var(--prime-primary);"></i>
+                <h5 class="card-title" style="color: var(--prime-text);">Total de Clientes</h5>
+                <p class="card-text display-4" style="color: var(--prime-primary);">{{ total_clients }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-md mb-3" style="font-size: 2rem; color: var(--prime-primary);"></i>
+                <h5 class="card-title" style="color: var(--prime-text);">Profissionais</h5>
+                <p class="card-text display-4" style="color: var(--prime-primary);">{{ total_professionals }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-spa mb-3" style="font-size: 2rem; color: var(--prime-primary);"></i>
+                <h5 class="card-title" style="color: var(--prime-text);">Procedimentos</h5>
+                <p class="card-text display-4" style="color: var(--prime-primary);">{{ total_procedures }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
